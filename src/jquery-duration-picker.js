@@ -2,14 +2,15 @@
 
 var langs = {
     en: {
-        day: 'day',
+        day: 'd',
         hour: 'hour',
-        minute: 'minute',
-        second: 'second',
-        days: 'days',
+        minute: 'min',
+        second: 'sec',
+        days: 'd',
         hours: 'hours',
-        minutes: 'minutes',
-        seconds: 'seconds'
+        minutes: 'min',
+        seconds: 'sec',
+        milliseconds: 'ms'
     },
     es: {
         day: 'd&iacute;a',
@@ -19,7 +20,8 @@ var langs = {
         days: 'd&iacute;s',
         hours: 'horas',
         minutes: 'minutos',
-        seconds: 'segundos'
+        seconds: 'segundos',
+        milliseconds: 'ms'
     }
 };
         
@@ -34,8 +36,9 @@ $.fn.durationPicker = function (options) {
             checkRanges: false,
             totalMax: 31556952000, // 1 year
             totalMin: 60000, // 1 minute
-            showSeconds: false,
-            showDays: true
+            showSeconds: true,
+            showMilliseconds: true,
+            showDays: false
         };
         
         var settings = $.extend( {}, defaults, options );
@@ -60,6 +63,7 @@ $.fn.durationPicker = function (options) {
             $mainInputReplacer.append(buildDisplayBlock('hours'));
             $mainInputReplacer.append(buildDisplayBlock('minutes'));
             $mainInputReplacer.append(buildDisplayBlock('seconds', !settings.showSeconds));
+            $mainInputReplacer.append(buildDisplayBlock('milliseconds', !settings.showMilliseconds));
             
             $mainInput.after($mainInputReplacer).hide().data('bdp', '1');
 
@@ -81,11 +85,13 @@ $.fn.durationPicker = function (options) {
                 $mainInputReplacer.find('#bdp-hours').text(totalDuration.hours());
                 $mainInputReplacer.find('#bdp-minutes').text(totalDuration.minutes());
                 $mainInputReplacer.find('#bdp-seconds').text(totalDuration.seconds());
+                $mainInputReplacer.find('#bdp-milliseconds').text(totalDuration.milliseconds());
 
-                $mainInputReplacer.find('#days_label').text(langs[settings.lang][totalDuration.days() == 1 ? 'day' : 'days']);
-                $mainInputReplacer.find('#hours_label').text(langs[settings.lang][totalDuration.hours() == 1 ? 'hour' : 'hours']);
-                $mainInputReplacer.find('#minutes_label').text(langs[settings.lang][totalDuration.minutes() == 1 ? 'minute' : 'minutes']);
-                $mainInputReplacer.find('#seconds_label').text(langs[settings.lang][totalDuration.seconds() == 1 ? 'second' : 'seconds']);
+                $mainInputReplacer.find('#days_label').text(langs[settings.lang][totalDuration.days() > 1 ? 'day' : 'days']);
+                $mainInputReplacer.find('#hours_label').text(langs[settings.lang][totalDuration.hours() > 1 ? 'hour' : 'hours']);
+                $mainInputReplacer.find('#minutes_label').text(langs[settings.lang][totalDuration.minutes() > 1 ? 'minute' : 'minutes']);
+                $mainInputReplacer.find('#seconds_label').text(langs[settings.lang][totalDuration.seconds() > 1 ? 'second' : 'seconds']);
+                $mainInputReplacer.find('#milliseconds_label').text(langs[settings.lang][totalDuration.milliseconds() > 1 ? 'milliseconds' : 'milliseconds']);
             }
 
             function updatePicker() {
@@ -97,6 +103,7 @@ $.fn.durationPicker = function (options) {
                 inputs.hours.val(totalDuration.hours());
                 inputs.minutes.val(totalDuration.minutes());
                 inputs.seconds.val(totalDuration.seconds());
+                inputs.milliseconds.val(totalDuration.milliseconds());
             }
 
             function init() {
@@ -114,6 +121,7 @@ $.fn.durationPicker = function (options) {
 
             function picker_changed() {
             	totalDuration = moment.duration({
+            		milliseconds : parseInt(inputs.milliseconds.val()),
             		seconds : parseInt(inputs.seconds.val()),
             		minutes : parseInt(inputs.minutes.val()),
             		hours : parseInt(inputs.hours.val()),
@@ -154,6 +162,7 @@ $.fn.durationPicker = function (options) {
                 buildNumericInput('hours', false, 23).appendTo($picker);
                 buildNumericInput('minutes', false, 59).appendTo($picker);
                 buildNumericInput('seconds', !settings.showSeconds, 59).appendTo($picker);
+                buildNumericInput('milliseconds', !settings.showMilliseconds, 999).appendTo($picker);
 
                 $mainInputReplacer.popover({
                     placement: 'bottom',
