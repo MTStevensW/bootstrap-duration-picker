@@ -26,9 +26,6 @@ var langs = {
 };
         
 $.fn.durationPicker = function (options) {
-    	
-    	// Store an instance of moment duration
-        var totalDuration = 0;       
         
         var defaults = {
             lang: 'en',
@@ -40,16 +37,20 @@ $.fn.durationPicker = function (options) {
             showMilliseconds: true,
             showDays: false
         };
+
+        var mainInputs     = {};
+        var totalDurations = {};
         
         var settings = $.extend( {}, defaults, options );
                 
         this.each(function (i, mainInput) {
+            // Get current id
+            var bdp_id = $(this).attr('id');
+    	
+        	// Store an instance of moment duration
+            totalDurations[bdp_id] = 0;
 
-            $mainInput = $(mainInput);
-
-            if ($mainInput.data('bdp') === '1') {
-            	return;
-            }
+            mainInputs[bdp_id] = $(mainInput);
 
             function buildDisplayBlock(id, hidden) {
                 return '<div class="bdp-block '+ (hidden ? 'hidden' : '') + '">' +
@@ -65,33 +66,33 @@ $.fn.durationPicker = function (options) {
             $mainInputReplacer.append(buildDisplayBlock('seconds', !settings.showSeconds));
             $mainInputReplacer.append(buildDisplayBlock('milliseconds', !settings.showMilliseconds));
             
-            $mainInput.after($mainInputReplacer).hide().data('bdp', '1');
+            mainInputs[bdp_id].after($mainInputReplacer).hide().data('bdp', '1');
 
             var inputs = [];
 
             var disabled = false;
-            if ($mainInput.hasClass('disabled') || $mainInput.attr('disabled') == 'disabled') {
+            if (mainInputs[bdp_id].hasClass('disabled') || mainInputs[bdp_id].attr('disabled') == 'disabled') {
                 disabled = true;
                 $mainInputReplacer.addClass('disabled');
             }
 
             function updateMainInput() {
-                $mainInput.val(totalDuration.asMilliseconds());
-                $mainInput.change(); 
+                mainInputs[bdp_id].val(totalDurations[bdp_id].asMilliseconds());
+                mainInputs[bdp_id].change(); 
             }
 
             function updateMainInputReplacer() {            	
-                $mainInputReplacer.find('#bdp-days').text(totalDuration.days());
-                $mainInputReplacer.find('#bdp-hours').text(totalDuration.hours());
-                $mainInputReplacer.find('#bdp-minutes').text(totalDuration.minutes());
-                $mainInputReplacer.find('#bdp-seconds').text(totalDuration.seconds());
-                $mainInputReplacer.find('#bdp-milliseconds').text(totalDuration.milliseconds());
+                $mainInputReplacer.find('#bdp-days').text(totalDurations[bdp_id].days());
+                $mainInputReplacer.find('#bdp-hours').text(totalDurations[bdp_id].hours());
+                $mainInputReplacer.find('#bdp-minutes').text(totalDurations[bdp_id].minutes());
+                $mainInputReplacer.find('#bdp-seconds').text(totalDurations[bdp_id].seconds());
+                $mainInputReplacer.find('#bdp-milliseconds').text(totalDurations[bdp_id].milliseconds());
 
-                $mainInputReplacer.find('#days_label').text(langs[settings.lang][totalDuration.days() > 1 ? 'day' : 'days']);
-                $mainInputReplacer.find('#hours_label').text(langs[settings.lang][totalDuration.hours() > 1 ? 'hour' : 'hours']);
-                $mainInputReplacer.find('#minutes_label').text(langs[settings.lang][totalDuration.minutes() > 1 ? 'minute' : 'minutes']);
-                $mainInputReplacer.find('#seconds_label').text(langs[settings.lang][totalDuration.seconds() > 1 ? 'second' : 'seconds']);
-                $mainInputReplacer.find('#milliseconds_label').text(langs[settings.lang][totalDuration.milliseconds() > 1 ? 'milliseconds' : 'milliseconds']);
+                $mainInputReplacer.find('#days_label').text(langs[settings.lang][totalDurations[bdp_id].days() > 1 ? 'day' : 'days']);
+                $mainInputReplacer.find('#hours_label').text(langs[settings.lang][totalDurations[bdp_id].hours() > 1 ? 'hour' : 'hours']);
+                $mainInputReplacer.find('#minutes_label').text(langs[settings.lang][totalDurations[bdp_id].minutes() > 1 ? 'minute' : 'minutes']);
+                $mainInputReplacer.find('#seconds_label').text(langs[settings.lang][totalDurations[bdp_id].seconds() > 1 ? 'second' : 'seconds']);
+                $mainInputReplacer.find('#milliseconds_label').text(langs[settings.lang][totalDurations[bdp_id].milliseconds() > 1 ? 'milliseconds' : 'milliseconds']);
             }
 
             function updatePicker() {
@@ -99,28 +100,28 @@ $.fn.durationPicker = function (options) {
                 	return;
                 }
                 // Array of jQuery object inputs
-                inputs.days.val(totalDuration.days());
-                inputs.hours.val(totalDuration.hours());
-                inputs.minutes.val(totalDuration.minutes());
-                inputs.seconds.val(totalDuration.seconds());
-                inputs.milliseconds.val(totalDuration.milliseconds());
+                inputs.days.val(totalDurations[bdp_id].days());
+                inputs.hours.val(totalDurations[bdp_id].hours());
+                inputs.minutes.val(totalDurations[bdp_id].minutes());
+                inputs.seconds.val(totalDurations[bdp_id].seconds());
+                inputs.milliseconds.val(totalDurations[bdp_id].milliseconds());
             }
 
             function init() {
-                if (!$mainInput.val()) {
-                	$mainInput.val(0);
+                if (!mainInputs[bdp_id].val()) {
+                	mainInputs[bdp_id].val(0);
                 }
 
                 // Initialize moment with locale                
                 moment.locale(settings.lang);
 
-                totalDuration = moment.duration(parseInt($mainInput.val(), 10));
+                totalDurations[bdp_id] = moment.duration(parseInt(mainInputs[bdp_id].val(), 10));
                 checkRanges();
                 updatePicker();
             }
 
             function picker_changed() {
-            	totalDuration = moment.duration({
+            	totalDurations[bdp_id] = moment.duration({
             		milliseconds : parseInt(inputs.milliseconds.val()),
             		seconds : parseInt(inputs.seconds.val()),
             		minutes : parseInt(inputs.minutes.val()),
@@ -148,9 +149,9 @@ $.fn.durationPicker = function (options) {
             function checkRanges() {
             	if (settings.checkRanges) {            		
             		// Assign max value if out of range
-            		totalDuration = (totalDuration.asMilliseconds() > settings.totalMax) ? moment.duration(settings.totalMax) : totalDuration;            		
+            		totalDurations[bdp_id] = (totalDuration[bdp_id].asMilliseconds() > settings.totalMax) ? moment.duration(settings.totalMax) : totalDurations[bdp_id];
             		// Assign minimum value if out of range
-            		totalDuration = (totalDuration.asMilliseconds() < settings.totalMin) ? moment.duration(settings.totalMin) : totalDuration;            		  
+            		totalDurations[bdp_id] = (totalDurations[bdp_id].asMilliseconds() < settings.totalMin) ? moment.duration(settings.totalMin) : totalDurations[bdp_id];
             	}
             	// Always update input replacer
             	updateMainInputReplacer();
@@ -172,7 +173,7 @@ $.fn.durationPicker = function (options) {
                 });
             }
             init();
-            $mainInput.change(init);
+            mainInputs[bdp_id].change(init);
         });
     };
 }(jQuery));
