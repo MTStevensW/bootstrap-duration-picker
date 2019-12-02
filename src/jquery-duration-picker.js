@@ -171,9 +171,33 @@ $.fn.durationPicker = function (options) {
 
                 $mainInputReplacer.popover({
                     placement: 'bottom',
-                    trigger: 'click',
+                    trigger: 'manual',
                     html: true,
-                    content: $picker
+                    content: $picker,
+                    container: 'body'
+                });
+
+                $mainInputReplacer.click(function() {
+                    $mainInputReplacer.popover('toggle');
+                });
+
+                var closeHandler = null;
+                $mainInputReplacer.on('show.bs.popover', function() {
+                    closeHandler = 'durationPicker_' + (new Date()).getTime();
+
+                    $('body').on('click.' + closeHandler, function (e) {
+                        if (!$.contains($mainInputReplacer[0], e.target)
+                            && !$mainInputReplacer.is(e.target)
+                            && !$.contains($mainInputReplacer.data('bs.popover').tip()[0], e.target)
+                            && !$mainInputReplacer.data('bs.popover').tip().is(e.target)
+                        ) {
+                            $mainInputReplacer.popover('hide');
+                        }
+                    });
+                });
+
+                $mainInputReplacer.on('hide.bs.popover', function() {
+                    $('body').off('click.' + closeHandler);
                 });
             }
             init();
