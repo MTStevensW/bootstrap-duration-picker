@@ -3,6 +3,7 @@
     padding: 0 3px;
     border: 1px solid rgba(34, 36, 38, .15);
     cursor: pointer;
+    text-align: center;
 }
 
 .bdp-input.disabled {
