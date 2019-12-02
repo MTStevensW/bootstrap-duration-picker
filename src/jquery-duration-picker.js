@@ -1,3 +1,7 @@
+/**
+ * @see https://github.com/MTStevensW/bootstrap-duration-picker/
+ * Forked from https://github.com/klorie/bootstrap-duration-picker
+ */
 (function ($) {
 
 var langs = {
@@ -24,9 +28,9 @@ var langs = {
         milliseconds: 'ms'
     }
 };
-        
+
 $.fn.durationPicker = function (options) {
-        
+
         var defaults = {
             lang: 'en',
             max: 59,
@@ -40,13 +44,13 @@ $.fn.durationPicker = function (options) {
 
         var mainInputs     = {};
         var totalDurations = {};
-        
+
         var settings = $.extend( {}, defaults, options );
-                
+
         this.each(function (i, mainInput) {
             // Get current id
             var bdp_id = $(this).attr('id');
-    	
+
         	// Store an instance of moment duration
             totalDurations[bdp_id] = 0;
 
@@ -65,7 +69,7 @@ $.fn.durationPicker = function (options) {
             $mainInputReplacer.append(buildDisplayBlock('minutes'));
             $mainInputReplacer.append(buildDisplayBlock('seconds', !settings.showSeconds));
             $mainInputReplacer.append(buildDisplayBlock('milliseconds', !settings.showMilliseconds));
-            
+
             mainInputs[bdp_id].after($mainInputReplacer).hide().data('bdp', '1');
 
             var inputs = [];
@@ -78,21 +82,21 @@ $.fn.durationPicker = function (options) {
 
             function updateMainInput() {
                 mainInputs[bdp_id].val(totalDurations[bdp_id].asMilliseconds());
-                mainInputs[bdp_id].change(); 
+                mainInputs[bdp_id].change();
             }
 
-            function updateMainInputReplacer() {            	
+            function updateMainInputReplacer() {
                 $mainInputReplacer.find('#bdp-days').text(totalDurations[bdp_id].days());
                 $mainInputReplacer.find('#bdp-hours').text(totalDurations[bdp_id].hours());
                 $mainInputReplacer.find('#bdp-minutes').text(totalDurations[bdp_id].minutes());
                 $mainInputReplacer.find('#bdp-seconds').text(totalDurations[bdp_id].seconds());
                 $mainInputReplacer.find('#bdp-milliseconds').text(totalDurations[bdp_id].milliseconds());
 
-                $mainInputReplacer.find('#days_label').text(langs[settings.lang][totalDurations[bdp_id].days() > 1 ? 'day' : 'days']);
-                $mainInputReplacer.find('#hours_label').text(langs[settings.lang][totalDurations[bdp_id].hours() > 1 ? 'hour' : 'hours']);
-                $mainInputReplacer.find('#minutes_label').text(langs[settings.lang][totalDurations[bdp_id].minutes() > 1 ? 'minute' : 'minutes']);
-                $mainInputReplacer.find('#seconds_label').text(langs[settings.lang][totalDurations[bdp_id].seconds() > 1 ? 'second' : 'seconds']);
-                $mainInputReplacer.find('#milliseconds_label').text(langs[settings.lang][totalDurations[bdp_id].milliseconds() > 1 ? 'milliseconds' : 'milliseconds']);
+                $mainInputReplacer.find('#days_label').text(langs[settings.lang][totalDurations[bdp_id].days() == 1 ? 'day' : 'days']);
+                $mainInputReplacer.find('#hours_label').text(langs[settings.lang][totalDurations[bdp_id].hours() == 1 ? 'hour' : 'hours']);
+                $mainInputReplacer.find('#minutes_label').text(langs[settings.lang][totalDurations[bdp_id].minutes() == 1 ? 'minute' : 'minutes']);
+                $mainInputReplacer.find('#seconds_label').text(langs[settings.lang][totalDurations[bdp_id].seconds() == 1 ? 'second' : 'seconds']);
+                $mainInputReplacer.find('#milliseconds_label').text(langs[settings.lang][totalDurations[bdp_id].milliseconds() == 1 ? 'millisecond' : 'milliseconds']);
             }
 
             function updatePicker() {
@@ -112,7 +116,7 @@ $.fn.durationPicker = function (options) {
                 	mainInputs[bdp_id].val(0);
                 }
 
-                // Initialize moment with locale                
+                // Initialize moment with locale
                 moment.locale(settings.lang);
 
                 totalDurations[bdp_id] = moment.duration(parseInt(mainInputs[bdp_id].val(), 10));
@@ -145,9 +149,9 @@ $.fn.durationPicker = function (options) {
                 }
                 return $ctrl.prepend($input);
             }
-                        
+
             function checkRanges() {
-            	if (settings.checkRanges) {            		
+            	if (settings.checkRanges) {
             		// Assign max value if out of range
             		totalDurations[bdp_id] = (totalDuration[bdp_id].asMilliseconds() > settings.totalMax) ? moment.duration(settings.totalMax) : totalDurations[bdp_id];
             		// Assign minimum value if out of range
